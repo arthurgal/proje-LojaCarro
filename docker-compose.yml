@@ -1,0 +1,44 @@
+version: '3.9'
+
+services:
+
+  java_app:
+
+    container_name: java_app
+    image: java_app:1.0.0
+    build:
+      context: .
+      dockerfile: Dockerfile
+    command: mvn clean package -DskipTests
+    ports:
+      - 8080:8080
+
+    environment:
+      - DATABASE_URL=jdbc:mysql://java_db:3306/db?useTimezone=true&serverTimezone=UTC
+      - DATABASE_USERNAME=user
+      - DATABASE_PASSWORD=password
+
+    depends_on:
+      - java_db
+
+  java_db:
+    container_name: java_db
+    image: mysql:latest
+    restart: always
+    ports:
+      - 3306:3306
+    expose:
+      - 3306
+    environment:
+      MYSQL_DATABASE: db
+      # So you don't have to use root, but you can if you like
+      MYSQL_USER: user
+      # You can use whatever password you like
+      MYSQL_PASSWORD: password
+      # Password for root access
+      MYSQL_ROOT_PASSWORD: password
+    volumes:
+      - my-db:/var/lib/mysql
+
+volumes:
+  my-db: {}
